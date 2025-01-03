@@ -3,6 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from router import explanation_settai
+from router import explanation
 
 app = FastAPI()
 
@@ -28,4 +29,5 @@ def read_root(query: str):
         "Length": l
         } 
 
-app.include_router(explanation_settai.router, prefix="/chat")
+app.include_router(explanation_settai.router)
+app.include_router(explanation.router)
