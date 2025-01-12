@@ -25,9 +25,8 @@ app.add_middleware(
 def read_root(query: str):
     l = len(query)
     return {
-        "Score": 50,
-        "Length": l
-        } 
+        "Score": l
+    } 
 
 app.include_router(explanation_settai.router)
 app.include_router(explanation.router)
