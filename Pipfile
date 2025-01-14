@@ -7,6 +7,7 @@ name = "pypi"
 uvicorn = "*"
 fastapi = "*"
 openai = "*"
+transformers = "*"
 
 [dev-packages]
 
