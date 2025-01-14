@@ -2,6 +2,7 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from router import prediction
 from router import explanation_settai
 from router import explanation
 
@@ -21,12 +22,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
-def read_root(query: str):
-    l = len(query)
-    return {
-        "Score": l
-    } 
-
+app.include_router(prediction.router)
 app.include_router(explanation_settai.router)
 app.include_router(explanation.router)
