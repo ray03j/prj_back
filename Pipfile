@@ -8,6 +8,13 @@ uvicorn = "*"
 fastapi = "*"
 openai = "*"
 transformers = "*"
+torch = "*"
+mecab = "*"
+pykakasi = "*"
+fasttext = "*"
+protobuf = "*"
+fugashi = "*"
+unidic-lite = "*"
 
 [dev-packages]
 
