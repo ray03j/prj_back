@@ -13,8 +13,8 @@ router = APIRouter()
 
 # 必要な変数とパスを設定
 version = "v3.06"
-load_dir = f"../models/{version}"
-fasttext_model_path = "../models/cc.ja.300.bin"
+load_dir = f"/home/group4/prj_back/models/{version}"
+fasttext_model_path = "/home/group4/prj_back/models/cc.ja.300.bin"
 bert_model_name = "cl-tohoku/bert-base-japanese-v3"
 
 # MeCabの設定
@@ -107,7 +107,7 @@ async def predict(dajare: str):
         raise HTTPException(status_code=400, detail="Query string cannot be empty")
 
     try:
-        shareka_instance = Shareka(dajare, n=3)
+        shareka_instance = Shareka(dajare, n=2)
         is_dajare = int(shareka_instance.dajarewake())
 
         if is_dajare:
@@ -123,16 +123,11 @@ async def predict(dajare: str):
                 prediction = model(input_tensor).squeeze().item()
                 # ここ変えるかも
                 prediction = prediction * 80 + 20
-                # ここいらん？
-                predicted_class = "Funny" if prediction >= 3 else "Not Funny"
         else:
             prediction = 0.0
-            predicted_class = "Not Funny"
 
         return {
-            "query": dajare,
-            "score": prediction,
-            "predicted_class": predicted_class
+            "Score": prediction,
         }
 
     except Exception as e:
