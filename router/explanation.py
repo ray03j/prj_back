@@ -7,6 +7,7 @@ router = APIRouter()
 
 class ChatRequest(BaseModel):
     dajare: str
+    score: int
 
 @router.post("/explanation")
 def chat(request: ChatRequest):
@@ -30,7 +31,7 @@ string型のテキストで出力してください。
                 },
                 {
                     "role" : "user",
-                    "content": f"「{request.dajare}」というダジャレについて、箇条書きで150字以内で解説してください"
+                    "content": f"「{request.dajare}」という100点中{request.score}点のダジャレについて、箇条書きで150字以内で解説してください"
                 }
             ]
         )

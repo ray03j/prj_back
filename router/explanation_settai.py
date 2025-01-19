@@ -7,6 +7,7 @@ router = APIRouter()
 
 class ChatRequest(BaseModel):
     dajare: str
+    score: int
 
 @router.post("/settai")
 def chat(request: ChatRequest):
@@ -27,7 +28,7 @@ def chat(request: ChatRequest):
                 },
                 {
                     "role" : "user",
-                    "content": f"「{request.dajare}」というダジャレについて、セリフ調で大げさに150字以内で褒めてください"
+                    "content": f"「{request.dajare}」という100点中{request.score}点のダジャレについて、セリフ調で大げさに150字以内で褒めてください"
                 }
             ]
         )

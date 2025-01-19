@@ -107,7 +107,7 @@ async def predict(dajare: str):
         raise HTTPException(status_code=400, detail="Query string cannot be empty")
 
     try:
-        shareka_instance = Shareka(dajare, n=2)
+        shareka_instance = Shareka(dajare, n=3)
         is_dajare = int(shareka_instance.dajarewake())
 
         if is_dajare:
