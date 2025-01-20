@@ -3,7 +3,6 @@ import torch
 import torch.nn as nn
 from transformers import BertJapaneseTokenizer, BertModel
 import MeCab
-import pykakasi
 import fasttext
 import numpy as np
 from schema.Shareka import Shareka
@@ -12,14 +11,13 @@ import os
 router = APIRouter()
 
 # 必要な変数とパスを設定
-version = "v3.06"
+version = "v3.20"
 load_dir = f"/home/group4/prj_back/models/{version}"
 fasttext_model_path = "/home/group4/prj_back/models/cc.ja.300.bin"
-bert_model_name = "cl-tohoku/bert-base-japanese-v3"
+bert_model_name = "sonoisa/sentence-bert-base-ja-mean-tokens-v2"
 
 # MeCabの設定
 mecab = MeCab.Tagger("-Owakati")
-kakasi = pykakasi.kakasi()
 
 # ニューラルネットワークモデルのクラス定義
 class DajarePredictor(nn.Module):
@@ -53,24 +51,14 @@ bert_model = BertModel.from_pretrained(bert_model_name)
 fasttext_model = fasttext.load_model(fasttext_model_path)
 
 # モデルのロード
-input_size = 1073  # Update input size to match dajudge_train.py
-hidden_sizes = [240, 165, 92, 20]  # 手動で設定
-dropout_rate = 0.47319861745762953  # 手動で設定
+input_size = 1068
+hidden_sizes = [165, 67, 46, 53]
+dropout_rate = 0.12976380378708768
 
 model = DajarePredictor(input_size=input_size, hidden_sizes=hidden_sizes, dropout_rate=dropout_rate)
 model_path = os.path.join(load_dir, "Dajare_best.pth")
 model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
 model.eval()
-
-# 音韻特徴量を生成
-def extract_phonetic_features(yomi):
-    romaji = yomi
-    vowels = sum(1 for char in romaji if char in "aeiou")
-    consonants = len(romaji.replace(" ", "")) - vowels
-    length = len(romaji.split())  # 音節数
-    repeat_ratio = sum(romaji.count(char) > 1 for char in set(romaji)) / len(set(romaji))
-    
-    return [length, vowels, consonants, vowels / (consonants + 1e-5), repeat_ratio]
 
 # 文をBERT埋め込みに変換
 def get_bert_embeddings(sentences, tokenizer, model):
@@ -87,10 +75,6 @@ def get_fasttext_embeddings(sentence, model):
         return np.mean(word_embeddings, axis=0)
     else:
         return np.zeros(300)
-
-# ひらがなと記号のみを抽出する関数
-def extract_hiragana_and_symbols(text):
-    return ''.join([char for char in text if char in "ぁ-んー、。！？"])
 
 @router.get("/")
 async def predict(dajare: str):
@@ -112,17 +96,13 @@ async def predict(dajare: str):
 
         if is_dajare:
             bert_embedding = get_bert_embeddings([dajare], tokenizer, bert_model)
-            yomi = mecab.parse(dajare).strip()
-            yomi = extract_hiragana_and_symbols(yomi)
-            phonetic_feature = np.array([extract_phonetic_features(yomi)])
             fasttext_embedding = np.array([get_fasttext_embeddings(dajare, fasttext_model)])
-            input_vector = np.hstack((bert_embedding, fasttext_embedding, phonetic_feature))
+            input_vector = np.hstack((bert_embedding, fasttext_embedding))
             input_tensor = torch.tensor(input_vector, dtype=torch.float32)
 
             with torch.no_grad():
                 prediction = model(input_tensor).squeeze().item()
-                # ここ変えるかも
-                prediction = prediction * 80 + 20
+                prediction = round(prediction * 100)
         else:
             prediction = 0.0
 

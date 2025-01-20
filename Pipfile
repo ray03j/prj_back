@@ -15,6 +15,7 @@ fasttext = "*"
 protobuf = "*"
 fugashi = "*"
 unidic-lite = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
